@@ -12,7 +12,9 @@ import like_count_pb2
 import uid_generator_pb2
 from google.protobuf.message import DecodeError
 
-app = Flask(__name__)
+VIP_KEY = "vipbishnoi"
+
+app = Flask(name)
 
 def load_tokens(server_name):
     try:
@@ -171,9 +173,10 @@ def decode_protobuf(binary):
 def handle_requests():
     uid = request.args.get("uid")
     server_name = request.args.get("server_name", "").upper()
-    if not uid or not server_name:
-        return jsonify({"error": "UID and server_name are required"}), 400
+    vipkey = request.args.get("vipkey")
 
+    if not uid or not server_name or vipkey != VIP_KEY:
+        return jsonify({"error": "Invalid request parameters or VIP key"}), 400
     try:
         def process_request():
             tokens = load_tokens(server_name)
@@ -238,5 +241,5 @@ def handle_requests():
         app.logger.error(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
+if name == 'main':
     app.run(debug=True, use_reloader=False)
