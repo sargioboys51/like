@@ -12,9 +12,9 @@ import like_count_pb2
 import uid_generator_pb2
 from google.protobuf.message import DecodeError
 
-VIP_KEY = "vipbishnoi"
+VIP_KEY = "papabol"  
 
-app = Flask(name)
+app = Flask(_name_)
 
 def load_tokens(server_name):
     try:
@@ -24,14 +24,8 @@ def load_tokens(server_name):
         elif server_name in {"BR", "US", "SAC", "NA"}:
             with open("token_br.json", "r") as f:
                 tokens = json.load(f)
-        elif server_name == "EU":
-            with open("token_eu.json", "r") as f:
-                tokens = json.load(f)
-        elif server_name == "VN":  # VN server add kiya
-            with open("token_vn.json", "r") as f:
-                tokens = json.load(f)
         else:
-            with open("bd.json", "r") as f:
+            with open("token_bd.json", "r") as f:
                 tokens = json.load(f)
         return tokens
     except Exception as e:
@@ -203,6 +197,7 @@ def handle_requests():
                 before_like = 0
             app.logger.info(f"Likes before command: {before_like}")
 
+            # تحديد رابط الإعجاب حسب اسم السيرفر
             if server_name == "IND":
                 url = "https://client.ind.freefiremobile.com/LikeProfile"
             elif server_name in {"BR", "US", "SAC", "NA"}:
@@ -210,8 +205,10 @@ def handle_requests():
             else:
                 url = "https://clientbp.ggblueshark.com/LikeProfile"
 
+            # إرسال الطلبات بشكل غير متزامن
             asyncio.run(send_multiple_requests(uid, server_name, url))
 
+            # الحصول على بيانات اللاعب بعد تنفيذ عملية الإعجاب
             after = make_request(encrypted_uid, server_name, token)
             if after is None:
                 raise Exception("Failed to retrieve player info after like requests.")
@@ -227,8 +224,8 @@ def handle_requests():
             status = 1 if like_given != 0 else 2
             result = {
                 "LikesGivenByAPI": like_given,
-                "LikesbeforeCommand": before_like,
                 "LikesafterCommand": after_like,
+                "LikesbeforeCommand": before_like,
                 "PlayerNickname": player_name,
                 "UID": player_uid,
                 "status": status
@@ -241,5 +238,5 @@ def handle_requests():
         app.logger.error(f"Error processing request: {e}")
         return jsonify({"error": str(e)}), 500
 
-if name == 'main':
+if _name_ == '_main_':
     app.run(debug=True, use_reloader=False)
